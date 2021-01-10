@@ -3,50 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome to Golf Diary!!</title>
-    <style>
-        .home_header, .home_footer {
-            width: 100%;
-            height: 100px;
-            background-color: #7cb342;
-            text-align: center;
-        }
-
-        .member_login {
-            display: flex;
-            background-color: darkkhaki;
-            justify-content: flex-end;
-
-        }
-        .home_jumbotron {
-            width: 100%;
-            height: 400px;
-            background-color: beige;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 </head>
 <body>
 <div class="home_header">
     <h1>Golf Diary</h1>
 </div>
-<div class="member_login">
-    <input type="email" placeholder="이메일을 입력해 주세요">
-    <input type="password" placeholder="비밀번호를 입력해 주세요">
-    <button>login</button>
-    <button>회원가입</button>
-</div>
-<div class="home_jumbotron">
-    <div class="banner_h2">
-        <h2>골프 다이어리에 오신 것을 환영합니다.</h2>
+<!--<div class="member_login">-->
+<!--    <input type="email" placeholder="이메일을 입력해 주세요">-->
+<!--    <input type="password" placeholder="비밀번호를 입력해 주세요">-->
+<!--    <button>login</button>-->
+<!--    <button>회원가입</button>-->
+<!--</div>-->
+<div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active"></li>
+    <li data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"></li>
+    <li data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"></li>
+  </ol>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="../static/imgs/golfCC1.jpg" class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Welcome to Golf-diary.</h5>
+        <p>골프 다이어리에 오신 것을 환영합니다.</p>
+      </div>
     </div>
-    <div class="banner_h3">
-        <h3>골프 다이어리로 당신의 라운딩을 계획하고, 기록하고, 분석해 보세요.</h3>
-        <h3>골프 다이어리를 통해 당신의 골프 실력은 몰라보게 향상될 것입니다.</h3>
+    <div class="carousel-item">
+      <img src="../static/imgs/golfCC2.jpg" class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Play Like a Tour Pro!</h5>
+        <p>골프 다이어리로 당신의 라운딩을 계획하고, 기록하고, 분석해 보세요.</p>
+      </div>
     </div>
+    <div class="carousel-item">
+      <img src="../static/imgs/golfCC3.jpg" class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>You will be a Tour Pro!</h5>
+        <p>골프 다이어리를 통해 당신의 골프 실력은 몰라보게 향상될 것입니다.</p>
+      </div>
+    </div>
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </a>
 </div>
+<script>
+  $(function(){
+// 이미지 슬라이드 컨트롤를 사용하기 위해서는 carousel를 실행해야한다.
+    $('#carouselExampleCaptions').carousel({
+// 슬리아딩 자동 순환 지연 시간
+// false면 자동 순환하지 않는다.
+    interval: 1000,
+// hover를 설정하면 마우스를 가져대면 자동 순환이 멈춘다.
+    pause: "hover",
+// 순환 설정, true면 1 -> 2가면 다시 1로 돌아가서 반복
+    wrap: true,
+// 키보드 이벤트 설정 여부(?)
+    keyboard : true
+    });
+  });
+</script>
+
+
+출처: https://nowonbun.tistory.com/707 [명월 일지]
 
 
 <div class="home_footer">
