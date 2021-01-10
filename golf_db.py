@@ -38,10 +38,10 @@ def pagination_click(page):
     target.click() #넘겨받은 페이지를 클릭한다.
 
 def page_scraping():
-   courses = driver.find_elements_by_css_selector("#datalist .course_posi > a")
-    for i in range(0, 10):
-        course = list(driver.find_elements_by_css_selector("#datalist .course_posi > a"))
-        print(len(course))
+    courses = driver.find_elements_by_css_selector("#datalist .course_posi > a")
+    for i in range(0, len(courses)):
+        print(i)
+        course = driver.find_elements_by_css_selector("#datalist .course_posi > a")
         course[i].click()
         time.sleep(2)
         course_info_scrap()
@@ -74,7 +74,7 @@ def course_info_scrap():
     hole_table = soup.select('.hall_info > table')
 
     # print(hole_table)
-    # 골프장에 있는 코스 수 만큼 루프를 돌리며, 필요한 정보를 크롤잉한다.
+    # 골프장에 있는 코스 수 만큼 루프를 돌리며, 필요한 정보를 크롤링한다.
 
     for i in range(0, len(hole_info)):
         # 코스이름 정보를 course_name에 담는다.
@@ -156,7 +156,7 @@ def course_info_scrap():
         }
 
         db.courses.insert_one(doc)
-    driver.back()
+
 
 #제일 첫번째 페이지부터 마지막 페이지(26)까지 반복하여 스크래핑한다.
 
@@ -165,10 +165,11 @@ for page in range(1, 27):
     if  page%10 == 1:
         page_scraping()
     elif page%10 == 0: #페이지/10의 몫이 0인지를 확인하고, 0이면 그 페이지를 클릭하고 스크래핑하고, 닫은 후 '다음'을 클릭한다.
+        pagination_click(page)
         page_scraping()
         next_move = driver.find_element_by_link_text('{}'.format('다음'))
         next_move.click()
-    else:#0이 아니면 반복해서 페이지를 클릭해서 열고 scraping한다.
-        pagination_click()
+    else: #0이 아니면 반복해서 페이지를 클릭해서 열고 scraping한다.
+        pagination_click(page)
         page_scraping()
 driver.close()
