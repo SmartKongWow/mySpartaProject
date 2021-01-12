@@ -39,11 +39,18 @@ def course_info_scrap():
     # 골프장에 있는 코스 수 만큼 루프를 돌리며, 필요한 정보를 크롤링한다.
 
     for i in range(0, len(hole_info)):
+        cc = cc_name
         # 코스이름 정보를 course_name에 담는다.
         course_name = hole_info[i].text
         print(course_name)
-
-        # 각 코스별 파 정보를 hole_par에 담는다.
+        # check_dic =     db.courses.find({
+        #                     "ccName": {cc},
+        #                     'courseName': {course_name}
+        #                 })
+        # print(check_dic)
+        # if check_dic is not None:
+        #     pass
+        # else:
         hole_par = hole_table[i].select('thead > tr:nth-child(2) > th')
         # print(hole_par)
 
@@ -117,7 +124,9 @@ def course_info_scrap():
             'mapImg': map_image_dic
         }
 
-        db.courses.insert_one(doc)
+        db.courses.insert(
+            doc
+        )
 
 def pagination_click(p):
     target = driver.find_element_by_link_text('{}'.format(p))
