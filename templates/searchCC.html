@@ -14,10 +14,8 @@
            let ccName = $("#search_cc").val();
             $.ajax({
                 type: "GET",
-                url: "/searchCC",
-                data: {
-                    ccName_sent: ccName
-                },
+                url: "/searchCC?ccName_sent=ccName",
+                data: {},
                 success: function (response) {
                     if (response["result"] == "success") {
                         let ccs = response["ccs"];
