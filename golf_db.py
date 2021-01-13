@@ -69,7 +69,7 @@ def course_info_scrap():
         # 각 tee 별 거리 정보를 추출한다.
         # 각 tee 이름은 tees_type에, 각 tee별 전장은 tees_length에 크롤링한다.
         tees_type = hole_table[i].select('tbody > tr > th')
-        tees_length = hole_table[i].select('tbody > tr > td')
+        tees_length = hole_table[i].sele ct('tbody > tr > td')
 
         # tee type 크롤링 후 tag를 제거하여 tees_type_list에 리스트로 저장한다.
         tees_type_list = []
@@ -124,7 +124,7 @@ def course_info_scrap():
             'mapImg': map_image_dic
         }
 
-        db.courses.insert(
+        db.courses.insert_one(
             doc
         )
 
