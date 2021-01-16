@@ -23,110 +23,153 @@ def course_info_scrap():
     else:
         cc_name.strip()
         print("else:", cc_name)
-    cc_detail = soup.select('.detail table tr:nth-child(1) td')
-    cc_no_hole = cc_detail[0].text
-    cc_length = cc_detail[1].text
-    cc_basic_info = soup.select('.basic_info td')
-    cc_address = cc_basic_info[0].text
-    cc_url = cc_basic_info[1].text
-    cc_phone = cc_basic_info[2].text
-    cc_fax = cc_basic_info[3].text
+
+    cc_exist = list(db.courses.find({"ccName": cc_name}))
+    print(len(cc_exist))
+
+    if len(cc_exist) > 0 :
+        print(cc_name + "이 이미 존재합니다.")
+        pass
+
+    else:     #CC가 없으면 CC를 추가한다.
+
+        cc_detail = soup.select('.detail table tr:nth-child(1) td')
+        cc_no_hole = cc_detail[0].text
+        cc_length = cc_detail[1].text
+        cc_basic_info = soup.select('.basic_info td')
+        cc_address = cc_basic_info[0].text
+        cc_url = cc_basic_info[1].text
+        cc_phone = cc_basic_info[2].text
+        cc_fax = cc_basic_info[3].text
+
+        doc_cc = {
+                    'location': cc_location,
+                    'ccName': cc_name,
+                    'noOfHoles': int(),
+                    'totalLength': cc_length,
+                    'ccAddress': cc_address,
+                    'ccURL': cc_url,
+                    'ccPhone': cc_phone,
+                    'ccFax': cc_fax,
+                    'courseInfo': []
+        }
+
+        db.courses.insert_one(
+            doc_cc
+        )
+        print(cc_name + "을 DB에 추가하였습니다")
+
+    #CC가 있으면 추가하지 않고, course 정보를 스크래핑 한 후 CC에 추가한다.
+
 
     hole_info = soup.select('.hall_info > h5 > strong')
     hole_table = soup.select('.hall_info > table')
 
     # print(hole_table)
     # 골프장에 있는 코스 수 만큼 루프를 돌리며, 필요한 정보를 크롤링한다.
-
+    # courses = []
     for i in range(0, len(hole_info)):
         cc = cc_name
         # 코스이름 정보를 course_name에 담는다.
         course_name = hole_info[i].text
-        print(course_name)
-        # check_dic =     db.courses.find({
-        #                     "ccName": {cc},
-        #                     'courseName': {course_name}
-        #                 })
-        # print(check_dic)
-        # if check_dic is not None:
-        #     pass
-        # else:
-        hole_par = hole_table[i].select('thead > tr:nth-child(2) > th')
-        # print(hole_par)
+        course_exist = list(db.courses.find(
+            {"ccName":cc , "courseInfo":
+                {'$elemMatch': {"courseName": course_name}}
+            }
+        ))
+        #
+        # course_exist = (item for item in db.courses.courseInfo if item['courseName'] == course_name)
 
-        # hole_par 정보에 붙어 있는 tag를 제거하여 par_list에 저장한다.
-        par_list = []
 
-        for par in hole_par:
-            par_list.append(par.text)
+        print(course_exist)
 
-        # print(par_list)
+        if len(course_exist) > 0 :
+            print(course_name + '은 이미 있습니다.' )
+            pass
+        else:
+            print(course_name + ' 입력 시작합니다.')
+            new_courseInfo = {'courseName': course_name}
 
-        # par_list에 있는 첫번째 항목인 'PAR'를 par_dic의 키값으로, 나머지 홀정보를 정수로 변환하여 리스트 밸류로 담는다.
-        par_dic = {par_list[0]: list(map(int, par_list[1:]))}
-        # print(par_dic)
+            hole_par = hole_table[i].select('thead > tr:nth-child(2) > th')
+            # hole_par 정보에 붙어 있는 tag를 제거하여 par_list에 저장한다.
 
-        # 각 tee 별 거리 정보를 추출한다.
-        # 각 tee 이름은 tees_type에, 각 tee별 전장은 tees_length에 크롤링한다.
-        tees_type = hole_table[i].select('tbody > tr > th')
-        tees_length = hole_table[i].sele ct('tbody > tr > td')
+            par_list = []
+            for par in hole_par:
+                par_list.append(par.text)
 
-        # tee type 크롤링 후 tag를 제거하여 tees_type_list에 리스트로 저장한다.
-        tees_type_list = []
-        for tee_type in tees_type:
-            tees_type_list.append(tee_type.text)
+            # par_list에 있는 첫번째 항목인 'PAR'를 par_dic의 키값으로, 나머지 홀정보를 정수로 변환하여 리스트 밸류로 담는다.
+            # par_dic = {par_list[0]: list(map(int, par_list[1:]))}
 
-        # tee length 크롤링하여 tees_length_list에 리스트로 담는다.
-        # 만약 anchor tag가 있으면, src만 저장하고, 그렇지 않으면, 마지막 문자를 제거하고 정수로 변환하여 담는다.
+            # courseInfo에 par_list dictionary를 추가한다.
+            new_courseInfo.setdefault(par_list[0], list(map(int, par_list[1:])))
 
-        tees_length_list = []
-        for tee_length in tees_length:
-            if tee_length.select_one('a') is not None:
-                tees_length_list.append(tee_length.select_one('img')['src'])
-            else:
-                tees_length_list.append(int(tee_length.text[:-1]))
+            # 각 tee 별 거리 정보를 추출한다.
+            # 각 tee 이름은 tees_type에, 각 tee별 전장은 tees_length에 크롤링한다.
 
-        # Map_image_dic 딕셔너리를 만들고, tees_type_list의 제일 마지막 값인 'MAP'을 키값으로, tee_length_list에서 각 타입별 거리정보가 끝난 지점부터 끝까지 정보를 밸류로 담는다)
-        map_image_dic = {
-            tees_type_list[len(tees_type_list) - 1]: tees_length_list[(9 * (len(tees_type_list) - 1)):]}
-        # print(map_image_dic)
+            tees_type = hole_table[i].select('tbody > tr > th')
+            tees_length = hole_table[i].select('tbody > tr > td')
 
-        # tee_type_list에서 마지막 요소를 삭제한다.
-        tees_type_list.pop()
-        # print('tee type:', tees_type_list)
-        # tee_type_length에서 마지막 아홉개의 이미지를 삭제한다.
-        del tees_length_list[-9:]
-        # print('tee length: ', tees_length_list)
+            # # tee type 크롤링 후 tag를 제거하여 tees_type_list에 리스트로 저장한다.
+            tees_type_list = []
+            for tee_type in tees_type:
+                tees_type_list.append(tee_type.text)
 
-        # hole_dic를 만들어 par정보를 먼저 담는다.
-        hole_dic = {}
-        hole_dic = dict(hole_dic, **par_dic)
+            # tee length 크롤링하여 tees_length_list에 리스트로 담는다.
+            # 만약 anchor tag가 있으면, src만 저장하고, 그렇지 않으면, 마지막 문자를 제거하고 정수로 변환하여 담는다.
+            print(new_courseInfo)
 
-        # tee_type 개수만큼 루프를 돌려, 각 티별 딕셔너리를 hole_dic에 추가한다.
-        for tee_type in tees_type_list:
-            hole_dic.setdefault(tees_type_list[i])
-            for j in range(0, len(tees_type_list), 9):
-                hole_dic[tee_type] = tees_length_list[j:j + 9]
-        # 마지막으로 hole_dic에 map_image_dic을 추가한다.
-        # hole_dic.update(map_image_dic)
+            tees_length_list = []
+            for tee_length in tees_length:
+                if tee_length.select_one('a') is not None:
+                    tees_length_list.append(tee_length.select_one('img')['src'])
+                else:
+                    tees_length_list.append(int(tee_length.text[:-1]))
 
-        doc = {
-            'location': cc_location,
-            'ccName': cc_name,
-            'noOfHole홀수': cc_no_hole,
-            'totalLength': cc_length,
-            'ccAddress': cc_address,
-            'ccURL': cc_url,
-            'ccPhone': cc_phone,
-            'ccFax': cc_fax,
-            'courseName': course_name,
-            'holeInfo': hole_dic,
-            'mapImg': map_image_dic
-        }
+            # Map_image_dic 딕셔너리를 만들고, tees_type_list의 제일 마지막 값인 'MAP'을 키값으로, tee_length_list에서 각 타입별 거리정보가 끝난 지점부터 끝까지 정보를 밸류로 담는다)
+            # map_image_dic = {
+            #     tees_type_list[len(tees_type_list) - 1]: tees_length_list[(9 * (len(tees_type_list) - 1)):]}
+            # # print(map_image_dic)
+            #
+            # # tee_type_list에서 마지막 요소를 삭제한다.
+            # tees_type_list.pop()
+            # # print('tee type:', tees_type_list)
+            # # tee_type_length에서 마지막 아홉개의 이미지를 삭제한다.
+            # del tees_length_list[-9:]
 
-        db.courses.insert_one(
-            doc
-        )
+            # # hole_dic를 만들어 par정보를 먼저 담는다.(취소)
+            # hole_dic = {}
+            # hole_dic = dict(hole_dic, **par_dic)
+
+
+            # tee_type 개수만큼 루프를 돌려, 각 티별 딕셔너리를 hole_dic에 추가한다.
+            for i in range(0, len(tees_type_list)):
+                    new_courseInfo.setdefault(tees_type_list[i], tees_length_list[9*(i):9*(i+1)])
+
+                # for j in range(0, len(tees_type_list), 9):
+                #     courseInfo.setdefault(tees_type, tees_length_list[j:j + 9])
+
+                    # hole_dic[tee_type] = tees_length_list[j:j + 9]
+            # 마지막으로 hole_dic에 map_image_dic을 추가한다.
+            # hole_dic.update(map_image_dic)
+            # courses를 업데이트 한다. ccName을 같은 CC를 찾아서
+            # doc_course = {
+            #     'courseName': course_name,
+            #     'holeInfo': hole_dic,
+            #     'mapImg': map_image_dic
+            # }
+            #
+            # db.courses.update_one(
+            #     {"ccName": cc},
+            #     {"$push": {"courseInfo": doc_course}}
+            # )
+            print(new_courseInfo)
+
+            db.courses.update_one(
+                {"ccName": cc_name},
+                {'$push': {"courseInfo" : new_courseInfo}})
+
+            print(course_name + "을 courses에 추가하였습니다. ")
+
 
 def pagination_click(p):
     target = driver.find_element_by_link_text('{}'.format(p))

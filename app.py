@@ -15,17 +15,24 @@ def home():
 
 @app.route('/search', methods=['GET'])
 def search_cc():
-    print("search cc start!")
+    # print("search cc start!")
     ccName_receive = request.args.get('ccName_sent')
     ccLocation_receive = request.args.get('location_sent')
-    print(ccName_receive, ccLocation_receive)
-    if ccName_receive is not None:
-        ccs = list(db.courses.find({'ccName': {'$regex':ccName_receive}}, {'_id':0}))
-    else:
-        ccs = list(db.courses.find({'location':ccLocation_receive}, {'_id':0}))
-    print(ccs)
-    return jsonify(({'result': 'success', 'ccs': ccs}))
+    # print(ccName_receive, ccLocation_receive)
 
+    if ccName_receive is not None:
+        ccs = list(db.courses.find(
+            {'ccName': {'$regex':ccName_receive}},
+            {'_id':0, 'location': 1, 'ccName': 1, 'ccAddress':1, 'noOfHoles': 1, 'ccURL': 1, 'courseInfo': 1}
+            ))
+    else:
+        ccs = list(db.courses.find(
+            {'location':ccLocation_receive},
+            {'_id':0,'location': 1, 'ccName': 1, 'ccAddress':1, 'noOfHoles': 1, 'ccURL': 1, "courseInfo": 1}
+        ).sort('ccName', 1))
+
+    return jsonify(({'result': 'success', 'ccs': ccs}))
 
 if __name__ == '__main__':
    app.run('127.0.0.1', port=5000, debug=True)
+

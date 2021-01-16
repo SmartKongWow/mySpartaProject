@@ -3,15 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>CC를 고르세요!</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
 
+    <!-- 구글폰트 -->
+    <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
+
     <script>
         $(document).ready(function () {
-                $("#search_result_row").empty();
+            $("#search_result_row").empty();
         });
 
        function search_by_ccName() {
@@ -20,16 +29,17 @@
                 type: "GET",
                 url: "/search?ccName_sent=" + ccName,
                 data: {},
-                success: function (response) {
+                success: function(response) {
                     if (response["result"] == "success") {
                         let ccs = response["ccs"];
                         $("#search_result_row").empty();
                         for (let i = 0; i < ccs.length; i++) {
-                            makeList(ccs[i]["ccName"],
+                            makeCCList(ccs[i]["ccName"],
                                 ccs[i]["location"],
                                 ccs[i]["ccAddress"],
-                                ccs[i]["noOfHole홀수"],
-                                ccs[i]["ccURL"]
+                                ccs[i]["noOfHoles"],
+                                ccs[i]["ccURL"],
+                                ccs[i]["courseInfo"]
                             )
                         }
                     }
@@ -48,11 +58,12 @@
                         let ccs = response["ccs"];
                         $("#search_result_row").empty();
                         for (let i = 0; i < ccs.length; i++) {
-                            makeList(ccs[i]["ccName"],
+                            makeCCList(ccs[i]["ccName"],
                                 ccs[i]["location"],
                                 ccs[i]["ccAddress"],
-                                ccs[i]["noOfHole홀수"],
-                                ccs[i]["ccURL"]
+                                ccs[i]["noOfHoles"],
+                                ccs[i]["ccURL"],
+                                ccs[i]["courseInfo"]
                             )
                         }
                     }
@@ -60,20 +71,19 @@
             })
         }
 
-       function makeList(ccName,location,ccAddress,noOfHole홀수,ccURL) {
+       function makeCCList(ccName,location,ccAddress,noOfHoles,ccURL) {
            let tempHtml = `
                     <tr>
                         <td>${ccName}</td>
                         <td>${location}</td>
                         <td>${ccAddress}</td>
-                        <td>${noOfHole홀수}</td>
+                        <td>${noOfHoles}</td>
                         <td><a>${ccURL}</a></td>
                         <td><button>코스보기</button></td>
                     </tr>
                     ` ;
            $("#search_result_row").append(tempHtml);
        }
-
     </script>
 
 </head>
@@ -160,7 +170,6 @@
                     </tbody>
                 </table>
             </div>
-        </div>
     </div>
 </body>
 </html>
